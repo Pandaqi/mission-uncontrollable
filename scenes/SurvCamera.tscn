@@ -1,0 +1,15 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://scripts/SurvCamera.gd" type="Script" id=1]
+[ext_resource path="res://scenes/SpotLight.tscn" type="PackedScene" id=2]
+[ext_resource path="res://assets/sprites/camera.png" type="Texture" id=3]
+
+[node name="SurvCamera" type="Sprite" groups=[
+"Surv",
+]]
+position = Vector2( 25.6598, 90.3923 )
+texture = ExtResource( 3 )
+offset = Vector2( 5, 0 )
+script = ExtResource( 1 )
+
+[node name="SpotLight" parent="." instance=ExtResource( 2 )]

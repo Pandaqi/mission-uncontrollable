@@ -1,7 +1,9 @@
 extends TileMap
 
-export(int) var opening_left = -1
-export(int) var opening_top = -1
-export(int) var opening_right = -1
-export(int) var opening_bottom = -1
+export(PoolIntArray) var opening_left = []
+export(PoolIntArray) var opening_top = []
+export(PoolIntArray) var opening_right = []
+export(PoolIntArray) var opening_bottom = []
+
 export(Vector2) var spawn_pos = Vector2.ZERO
+export(Vector2) var door_pos = Vector2.ZERO
