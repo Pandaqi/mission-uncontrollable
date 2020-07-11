@@ -1,0 +1,157 @@
+[gd_scene load_steps=6 format=2]
+
+[ext_resource path="res://assets/fonts/MainFont.tres" type="DynamicFont" id=1]
+[ext_resource path="res://assets/sprites/menu_text.png" type="Texture" id=2]
+[ext_resource path="res://assets/fonts/MainFont-Big.tres" type="DynamicFont" id=3]
+[ext_resource path="res://scripts/Menu.gd" type="Script" id=4]
+[ext_resource path="res://animations/MenuAppear.tres" type="Animation" id=5]
+
+[node name="Menu" type="Node2D"]
+script = ExtResource( 4 )
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="Control" type="Control" parent="CanvasLayer"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="CenterContainer" type="CenterContainer" parent="CanvasLayer/Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="CanvasLayer/Control/CenterContainer"]
+margin_left = 179.0
+margin_top = 43.0
+margin_right = 845.0
+margin_bottom = 556.0
+custom_constants/separation = 40
+
+[node name="TextureRect" type="TextureRect" parent="CanvasLayer/Control/CenterContainer/VBoxContainer2"]
+modulate = Color( 1, 1, 1, 0 )
+margin_right = 666.0
+margin_bottom = 220.0
+texture = ExtResource( 2 )
+
+[node name="CenterContainer" type="CenterContainer" parent="CanvasLayer/Control/CenterContainer/VBoxContainer2"]
+margin_top = 260.0
+margin_right = 666.0
+margin_bottom = 513.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/Control/CenterContainer/VBoxContainer2/CenterContainer"]
+margin_left = 173.0
+margin_right = 493.0
+margin_bottom = 253.0
+custom_constants/separation = 5
+
+[node name="Setting_Tutorial" type="HBoxContainer" parent="CanvasLayer/Control/CenterContainer/VBoxContainer2/CenterContainer/VBoxContainer"]
+modulate = Color( 1, 1, 1, 0 )
+margin_right = 320.0
+margin_bottom = 31.0
+
+[node name="Label" type="Label" parent="CanvasLayer/Control/CenterContainer/VBoxContainer2/CenterContainer/VBoxContainer/Setting_Tutorial"]
+margin_right = 292.0
+margin_bottom = 31.0
+custom_fonts/font = ExtResource( 1 )
+text = "Start with tutorial room?"
+
+[node name="Tutorial_Checkbox" type="CheckBox" parent="CanvasLayer/Control/CenterContainer/VBoxContainer2/CenterContainer/VBoxContainer/Setting_Tutorial"]
+margin_left = 296.0
+margin_right = 320.0
+margin_bottom = 31.0
+pressed = true
+
+[node name="Setting_Fullscreen" type="HBoxContainer" parent="CanvasLayer/Control/CenterContainer/VBoxContainer2/CenterContainer/VBoxContainer"]
+modulate = Color( 1, 1, 1, 0 )
+margin_top = 36.0
+margin_right = 320.0
+margin_bottom = 67.0
+
+[node name="Label" type="Label" parent="CanvasLayer/Control/CenterContainer/VBoxContainer2/CenterContainer/VBoxContainer/Setting_Fullscreen"]
+margin_right = 292.0
+margin_bottom = 31.0
+size_flags_horizontal = 3
+custom_fonts/font = ExtResource( 1 )
+text = "Fullscreen?"
+
+[node name="Fullscreen_Checkbox" type="CheckBox" parent="CanvasLayer/Control/CenterContainer/VBoxContainer2/CenterContainer/VBoxContainer/Setting_Fullscreen"]
+margin_left = 296.0
+margin_right = 320.0
+margin_bottom = 31.0
+
+[node name="Setting_Size" type="HBoxContainer" parent="CanvasLayer/Control/CenterContainer/VBoxContainer2/CenterContainer/VBoxContainer"]
+modulate = Color( 1, 1, 1, 0 )
+margin_top = 72.0
+margin_right = 320.0
+margin_bottom = 103.0
+
+[node name="Label" type="Label" parent="CanvasLayer/Control/CenterContainer/VBoxContainer2/CenterContainer/VBoxContainer/Setting_Size"]
+margin_right = 158.0
+margin_bottom = 31.0
+size_flags_horizontal = 3
+custom_fonts/font = ExtResource( 1 )
+text = "Level Size?"
+
+[node name="SizeSlider" type="HSlider" parent="CanvasLayer/Control/CenterContainer/VBoxContainer2/CenterContainer/VBoxContainer/Setting_Size"]
+margin_left = 162.0
+margin_top = 7.0
+margin_right = 320.0
+margin_bottom = 23.0
+size_flags_horizontal = 3
+size_flags_vertical = 4
+step = 10.0
+
+[node name="Setting_Volume" type="HBoxContainer" parent="CanvasLayer/Control/CenterContainer/VBoxContainer2/CenterContainer/VBoxContainer"]
+modulate = Color( 1, 1, 1, 0 )
+margin_top = 108.0
+margin_right = 320.0
+margin_bottom = 139.0
+
+[node name="Label" type="Label" parent="CanvasLayer/Control/CenterContainer/VBoxContainer2/CenterContainer/VBoxContainer/Setting_Volume"]
+margin_right = 162.0
+margin_bottom = 31.0
+size_flags_horizontal = 3
+custom_fonts/font = ExtResource( 1 )
+text = "Music Volume?"
+
+[node name="VolumeSlider" type="HSlider" parent="CanvasLayer/Control/CenterContainer/VBoxContainer2/CenterContainer/VBoxContainer/Setting_Volume"]
+margin_left = 166.0
+margin_top = 7.0
+margin_right = 320.0
+margin_bottom = 23.0
+size_flags_horizontal = 3
+size_flags_vertical = 4
+min_value = -36.0
+max_value = 0.0
+step = 4.0
+
+[node name="Button_Play" type="Button" parent="CanvasLayer/Control/CenterContainer/VBoxContainer2/CenterContainer/VBoxContainer"]
+modulate = Color( 1, 1, 1, 0 )
+margin_top = 144.0
+margin_right = 320.0
+margin_bottom = 211.0
+custom_fonts/font = ExtResource( 3 )
+text = "Play"
+
+[node name="Button_Quit" type="Button" parent="CanvasLayer/Control/CenterContainer/VBoxContainer2/CenterContainer/VBoxContainer"]
+modulate = Color( 1, 1, 1, 0 )
+margin_top = 216.0
+margin_right = 320.0
+margin_bottom = 253.0
+custom_fonts/font = ExtResource( 1 )
+text = "Quit"
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="CanvasLayer/Control"]
+autoplay = "MenuAppear"
+anims/MenuAppear = ExtResource( 5 )
+[connection signal="toggled" from="CanvasLayer/Control/CenterContainer/VBoxContainer2/CenterContainer/VBoxContainer/Setting_Tutorial/Tutorial_Checkbox" to="." method="_on_Tutorial_Checkbox_toggled"]
+[connection signal="toggled" from="CanvasLayer/Control/CenterContainer/VBoxContainer2/CenterContainer/VBoxContainer/Setting_Fullscreen/Fullscreen_Checkbox" to="." method="_on_Fullscreen_Checkbox_toggled"]
+[connection signal="value_changed" from="CanvasLayer/Control/CenterContainer/VBoxContainer2/CenterContainer/VBoxContainer/Setting_Size/SizeSlider" to="." method="_on_SizeSlider_value_changed"]
+[connection signal="value_changed" from="CanvasLayer/Control/CenterContainer/VBoxContainer2/CenterContainer/VBoxContainer/Setting_Volume/VolumeSlider" to="." method="_on_VolumeSlider_value_changed"]
+[connection signal="pressed" from="CanvasLayer/Control/CenterContainer/VBoxContainer2/CenterContainer/VBoxContainer/Button_Play" to="." method="_on_Button_Play_pressed"]
+[connection signal="pressed" from="CanvasLayer/Control/CenterContainer/VBoxContainer2/CenterContainer/VBoxContainer/Button_Quit" to="." method="_on_Button_Quit_pressed"]

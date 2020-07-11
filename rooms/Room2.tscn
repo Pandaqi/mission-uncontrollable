@@ -14,7 +14,7 @@ spawn_pos = Vector2( 1, 1 )
 door_pos = Vector2( 1, 5 )
 
 [node name="LampHanging" parent="." index="0" instance=ExtResource( 2 )]
-position = Vector2( 288, 288 )
+position = Vector2( 576.375, 578.2 )
 
 [node name="Door" parent="." index="1" instance=ExtResource( 3 )]
-position = Vector2( 96, 352 )
+position = Vector2( 192, 704 )

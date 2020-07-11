@@ -14,12 +14,13 @@ func _physics_process(dt):
 		for i in range(num_players_in_area):
 			var p = players_in_area[i]
 			if try_ray(p):
+				p.being_seen = true
 				main_node.raise_alarm(alarm_raise_rate*dt)
 
 func try_ray(body):
 	var space_state = get_world_2d().direct_space_state
 	
-	var player_width = 32
+	var player_width = 64
 	var from = global_position
 	
 	for i in range(max_rays):

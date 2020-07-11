@@ -14,11 +14,11 @@ opening_bottom = PoolIntArray( 2 )
 door_pos = Vector2( 2, 5 )
 
 [node name="SurvCamera" parent="." index="0" instance=ExtResource( 2 )]
-position = Vector2( 155.125, 217.525 )
+position = Vector2( 319.11, 423.558 )
 max_angles = Vector2( 0, 1 )
 
 [node name="LampHanging" parent="." index="1" instance=ExtResource( 3 )]
-position = Vector2( 351.935, 96.7957 )
+position = Vector2( 705.072, 192.825 )
 
 [node name="Door" parent="." index="2" instance=ExtResource( 4 )]
-position = Vector2( 160, 352 )
+position = Vector2( 322, 704 )

@@ -2,8 +2,8 @@ extends RigidBody2D
 
 const key_move_interpolation = 0.1
 
-const jump_speed = 250.0
-const move_speed = 10.0
+const jump_speed = 500.0
+const move_speed = 20.0
 var keys = []
 
 var player_num = -1
@@ -11,7 +11,7 @@ var player_num = -1
 var random_mode = false
 const random_mode_timer = { "min": 0.2, "max": 2.0 }
 
-const explode_radius = 100.0
+const explode_radius = 200.0
 const explode_alarm_raise = 30.0
 
 onready var main_node = get_node("/root/Main")
@@ -21,10 +21,13 @@ onready var random_mode_text = get_node("RandomModeText")
 onready var explode_sensor = get_node("ExplodeArea")
 onready var explode_particles = get_node("ExplodeParticles")
 
+onready var alarm_indicator = get_node("AlarmIndicator")
+var being_seen = false
+
 var rolling_mode = false
-const roll_speed = 20.0
-const climb_speed = 100.0
-const roll_ray_range = 12.0
+const roll_speed = 40.0
+const climb_speed = 200.0
+const roll_ray_range = 24.0
 var stick_ray_normal = Vector2.UP
 var rolling_dir = 1
 
@@ -32,6 +35,9 @@ func _ready():
 	# give text to main node, so it doesn't rotate with our player
 	remove_child(random_mode_text)
 	main_node.add_child(random_mode_text)
+	
+	remove_child(alarm_indicator)
+	main_node.add_child(alarm_indicator)
 
 func _input(ev):
 	if not (ev is InputEventKey):
@@ -53,13 +59,10 @@ func _input(ev):
 		
 		# key PRESS
 		if ev.scancode == k.scancode && ev.pressed:
-			print(OS.get_scancode_string(k.scancode) + " is pressed!")
 			execute_action_pressed(k.action)
 		
 		# key RELEASE
 		if ev.scancode == k.scancode && !ev.pressed:
-			print(OS.get_scancode_string(k.scancode) + " is released!")
-			print(k.action)
 			execute_action_released(k.action)
 	
 	if ev.scancode == KEY_E:
@@ -81,9 +84,7 @@ func execute_action_released(a):
 		'Jump Left':
 			var rand_angle = rand_range(2,3)*0.5*PI
 			var rand_impulse = Vector2(cos(rand_angle), sin(rand_angle))
-			apply_impulse(Vector2.ZERO, rand_impulse*jump_speed)
-			
-			print(rand_impulse)
+			apply_impulse(Vector2.ZERO, rand_impulse*jump_speed)			
 		
 		'Jump Right':
 			var rand_angle = rand_range(-1,0)*0.5*PI
@@ -157,6 +158,18 @@ func sticking(input, dir):
 	
 	return false
 
+func _physics_process(_dt):
+	# if we're being seen, display indicator
+	alarm_indicator.set_visible(being_seen)
+	if being_seen:
+		alarm_indicator.position = position + Vector2(0, -64)
+		alarm_indicator.get_node("AnimationPlayer").play('AlarmIndicator')
+	else:
+		alarm_indicator.get_node("AnimationPlayer").stop()
+	
+	# reset variable that checks if someone sees us (at END of function, important!)
+	being_seen = false
+
 func _integrate_forces(state):
 	# move keys with the player (smoothly)
 	var num_keys = keys.size()
@@ -165,7 +178,7 @@ func _integrate_forces(state):
 		var k = keys[i]
 		var o = k.wobble_offsets
 		
-		var offset = Vector2((-num_keys*0.5 + i)*40, -30)
+		var offset = Vector2((-num_keys*0.5 + i + 0.5)*80, -60)
 		var wobble = Vector2(sin(time + o[0]) + cos(time + o[1]), sin(time + o[2]) + cos(time + o[3]))*5
 		
 		var target_position = position + offset + wobble
@@ -252,16 +265,11 @@ func add_key(k):
 	keys.append(k)
 
 func check_word_match(word):
-	print("Checking word match against ", word)
-	
 	var matches = 0
 	for key in keys:
 		var letter = OS.get_scancode_string(key.properties.scancode)
 		
-		print("Checking letter ", letter)
-		
 		if letter in word:
-			print("Yes, letter in word!")
 			matches += 1
 	
 	return (matches == word.length())
@@ -271,7 +279,6 @@ func _on_Area_body_entered(body):
 		add_key(body)
 	
 	if body.get_parent().is_in_group("Doors"):
-		print("HITTING DOOR")
 		var is_match = check_word_match(body.get_parent().word)
 		
 		if is_match:

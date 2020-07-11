@@ -11,19 +11,23 @@ onready var GUI = get_node("GUI")
 
 const cam_interpolation = 0.5
 
-const dungeon_width = 2
-const dungeon_height = 2
+const dungeon_width = 3
+const dungeon_height = 5
 
 const number_of_columns = 1
 
-const number_of_rooms = 3
+const number_of_rooms = 4
 
-const cell_size = 64
+const cell_size = 128
 const room_size = Vector2(6, 6)
 
 var players = []
 var rooms = []
 var room_scenes = []
+
+onready var tutorial_room = preload("res://rooms/TutorialRoom.tscn")
+
+var areas = []
 
 const num_players = 2
 const num_keys = 10
@@ -75,6 +79,7 @@ const actions = [
 func _ready():
 	randomize()
 	
+	determine_areas()
 	pick_words()
 	preload_rooms()
 	create_dungeon()
@@ -82,9 +87,26 @@ func _ready():
 	place_keys()
 	
 	get_tree().paused = false
+	
+	# ensure camera stays nicely within dungeon bounds
+	cam.limit_left = -cell_size
+	cam.limit_right = ((dungeon_width+1)*number_of_columns)*room_size.x*cell_size
+	cam.limit_top = -cell_size
+	cam.limit_bottom = (dungeon_height)*room_size.y*cell_size
+
+func determine_areas():
+	# determine a set of distinct "areas"
+	areas = [[0,1]]
+	for y in range(2, dungeon_height):
+		# create new area!
+		if randf() <= 0.5:
+			areas.append([y])
+		
+		# latch onto previous area!
+			areas[areas.size()-1].append(y)
 
 func pick_words():
-	var num_words = dungeon_height
+	var num_words = areas.size()
 	for i in range(num_words):
 		var rand_word = word_dict[randi() % word_dict.size()]
 		
@@ -96,9 +118,6 @@ func pick_words():
 		
 		word_dict.erase(rand_word)
 		words.append(rand_word)
-	
-	print(words)
-	print(available_keys)
 
 func preload_rooms():
 	for i in range(number_of_rooms):
@@ -106,9 +125,7 @@ func preload_rooms():
 
 func create_key(scancode = null, action = null):
 	var key = key_scene.instance()
-	
-	print(scancode)
-	
+
 	if not action:
 		action = actions[randi() % actions.size()]
 	
@@ -125,14 +142,12 @@ func create_key(scancode = null, action = null):
 func place_keys():
 	# for each row in the dungeon, pick a random word
 	# hide the keys inside this area
-	for y in range(dungeon_height):
+	for i in range(areas.size()):
+		var area = areas[i]
 		
 		# pick a word, remove from list
 		var picked_word = words[0]
 		words.erase(picked_word)
-		
-		print("Picked word ", picked_word)
-		print(available_keys)
 		
 		# grab all corresponding letters (that must still be created)
 		var keys_to_place = []
@@ -142,12 +157,9 @@ func place_keys():
 				available_keys.erase(letter)
 				keys_to_place.append(letter)
 		
-		print(available_keys)
-		print(keys_to_place)
-		
 		# immediately give keys to players
 		# (form first row)
-		if y == 0:
+		if i == 0:
 			for num in range(num_players):
 				var action = 'Jump Right' if num == 0 else 'Jump Left'
 				var first_letter = keys_to_place[0]
@@ -165,8 +177,9 @@ func place_keys():
 			# get a random room on this row
 			var rand_num = randi() % number_of_columns
 			var rand_x = randi() % dungeon_width
+			var rand_y = area[randi() % area.size()]
 			
-			var room = rooms[rand_num][rand_x][y]
+			var room = rooms[rand_num][rand_x][rand_y]
 			
 			# and find a random empty cell
 			# (which is not further than the door)
@@ -182,13 +195,18 @@ func place_keys():
 			key.position = room.position + (rand_cell + Vector2(0.5, 0.5))*cell_size
 			call_deferred("add_child", key)
 		
-		# keep all doors, set them to this word
+		# remove all doors ...
+		# except on the LAST row: keep them and set them to the right word
 		for x in range(dungeon_width):
-			var room = rooms[0][x][y]
-			
-			for child in room.get_children():
-				if child.is_in_group("Doors"):
-					child.set_word(picked_word)
+			for row in range(area.size()):
+				var room = rooms[0][x][area[row]]
+				
+				for child in room.get_children():
+					if child.is_in_group("Doors"):
+						if row == (area.size() - 1):
+							child.set_word(picked_word)
+						else:
+							child.queue_free()
 
 func create_players():
 	for i in range(num_players):
@@ -199,7 +217,7 @@ func create_players():
 		var temp_x = 0 if i == 0 else (dungeon_width-1)
 		var start_room = rooms[0][temp_x][0]
 		var room_pos = start_room.position
-		var spawn_pos = start_room.spawn_pos*cell_size
+		var spawn_pos = (start_room.spawn_pos + Vector2(0.5, 0.5))*cell_size
 		p.set_position(room_pos + spawn_pos)
 		
 		call_deferred('add_child', p)
@@ -289,6 +307,15 @@ func place_fitting_room(num, x, y):
 		if not room_fits:
 			room.queue_free()
 	
+	# hacky way to ensure a tutorial room + correct texts at the top of the dungeon
+	if y == 0 and x <= 1:
+		room = tutorial_room.instance()
+		
+		if x == 1:
+			room.get_node("TutorialImage3").show()
+			room.get_node("TutorialImage1").hide()
+			room.get_node("TutorialImage2").hide()
+	
 	var offset_x = num*(dungeon_width + 2.0/room_size.x)
 	var room_pos = Vector2((x + offset_x)*cell_size*room_size.x, y*cell_size*room_size.y)
 	room.set_position(room_pos)
@@ -336,7 +363,7 @@ func _physics_process(dt):
 	required_size += zoom_margin
 	
 	var required_zoom = max(required_size.x / screen_size.x, required_size.y / screen_size.y)
-	var minimum_zoom = 0.5
+	var minimum_zoom = 1.0
 	var final_zoom = Vector2.ONE * max(minimum_zoom, required_zoom)
 	
 	cam.position = lerp(cam.position, avg_pos, cam_interpolation)

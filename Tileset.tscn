@@ -4,16 +4,16 @@
 [ext_resource path="res://assets/sprites/walltile.png" type="Texture" id=2]
 
 [sub_resource type="RectangleShape2D" id=1]
-extents = Vector2( 32, 32 )
+extents = Vector2( 64, 64 )
 
-[sub_resource type="OccluderPolygon2D" id=3]
-polygon = PoolVector2Array( -30.0277, -29.4403, 29.611, -29.1629, 30.1658, 29.6437, -30.3051, 29.6437 )
+[sub_resource type="OccluderPolygon2D" id=2]
+polygon = PoolVector2Array( -61.5152, -62.1095, 61.6458, -60.9999, 61.091, 62.161, -61.5152, 61.8836 )
 
-[sub_resource type="RectangleShape2D" id=2]
-extents = Vector2( 32, 32 )
+[sub_resource type="RectangleShape2D" id=3]
+extents = Vector2( 64, 64 )
 
 [sub_resource type="OccluderPolygon2D" id=4]
-polygon = PoolVector2Array( -29.1956, -29.1629, 29.3336, -29.4403, 29.611, 29.0889, -28.9182, 29.3663 )
+polygon = PoolVector2Array( -59.7202, -60.7225, 60.6669, -59.0582, 60.3895, 61.3288, -59.1654, 60.2192 )
 
 [node name="Tileset" type="Node2D"]
 
@@ -26,16 +26,16 @@ texture = ExtResource( 1 )
 shape = SubResource( 1 )
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Ground"]
-occluder = SubResource( 3 )
+occluder = SubResource( 2 )
 
 [node name="Wall" type="Sprite" parent="."]
-position = Vector2( 97.0863, 0 )
+position = Vector2( 172.406, 0 )
 texture = ExtResource( 2 )
 
 [node name="StaticBody2D" type="StaticBody2D" parent="Wall"]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Wall/StaticBody2D"]
-shape = SubResource( 2 )
+shape = SubResource( 3 )
 
 [node name="LightOccluder2D" type="LightOccluder2D" parent="Wall"]
 occluder = SubResource( 4 )

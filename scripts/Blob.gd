@@ -44,15 +44,15 @@ func _integrate_forces(state):
 func change_direction():
 	walk_direction *= -1
 	
-	var offset = Vector2(46, 0)
+	var offset = Vector2(92, 0)
 	
 	sensor.position = walk_direction*offset
-	sensor_high.position = walk_direction*offset + Vector2(0, -23)
-	sensor_feet.position = walk_direction*Vector2(16, 0) + Vector2(0, 16)
+	sensor_high.position = walk_direction*offset + Vector2(0, -46)
+	sensor_feet.position = walk_direction*Vector2(32, 0) + Vector2(0, 32)
 	get_node("Sprite").flip_h = (walk_direction == -1)
 	get_node("SpotLight").rotation = (walk_direction - 1)*0.5*PI
 	
-	var spotlight_offset = Vector2(12, -18)
+	var spotlight_offset = Vector2(18, -42)
 	get_node("SpotLight").position = walk_direction*Vector2(spotlight_offset.x, 0) + Vector2(0, spotlight_offset.y)
 	
 	# small delay, otherwise we keep flipping all the time

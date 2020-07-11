@@ -4,7 +4,7 @@ var game_over_state = false
 
 onready var game_over_message_node = get_node("GameOver/ColorRect/VBoxContainer/Message")
 onready var game_over_result_node = get_node("GameOver/ColorRect/VBoxContainer/Result")
-onready var alarm_bar = get_node("Control/AlarmBar/CenterContainer/TextureProgress")
+onready var alarm_bar = get_node("Control/HBoxContainer/AlarmBar/CenterContainer/TextureProgress")
 
 const messages = {
 	"WIN": 
@@ -30,6 +30,8 @@ func _input(ev):
 	
 	if ev.scancode == KEY_R:
 		get_tree().reload_current_scene()
+	elif ev.scancode == KEY_ESCAPE:
+		get_tree().change_scene("res://Menu.tscn")
 
 func final_game_pause():
 	pass
