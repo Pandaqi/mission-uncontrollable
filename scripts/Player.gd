@@ -9,7 +9,8 @@ var keys = []
 var player_num = -1
 
 var random_mode = false
-const random_mode_timer = { "min": 0.2, "max": 2.0 }
+const random_mode_timer = { "min": 0.75, "max": 2.5 }
+var planned_random_action = ""
 
 const explode_radius = 200.0
 const explode_alarm_raise = 30.0
@@ -21,8 +22,12 @@ onready var random_mode_text = get_node("RandomModeText")
 onready var explode_sensor = get_node("ExplodeArea")
 onready var explode_particles = get_node("ExplodeParticles")
 
+onready var pickup_area = get_node("Area")
+
 onready var alarm_indicator = get_node("AlarmIndicator")
 var being_seen = false
+
+onready var audio_player = get_node("AudioPlayer")
 
 var rolling_mode = false
 const roll_speed = 40.0
@@ -30,6 +35,9 @@ const climb_speed = 200.0
 const roll_ray_range = 24.0
 var stick_ray_normal = Vector2.UP
 var rolling_dir = 1
+
+var invincibility_timer = 2.0
+var key_pickup_timer = 0.0
 
 func _ready():
 	# give text to main node, so it doesn't rotate with our player
@@ -55,19 +63,21 @@ func _input(ev):
 	
 	# check if any of the keys do something
 	for i in range(keys.size()):
+		var key = keys[i]
 		var k = keys[i].properties
 		
 		# key PRESS
 		if ev.scancode == k.scancode && ev.pressed:
+			key.highlight()
 			execute_action_pressed(k.action)
 		
 		# key RELEASE
 		if ev.scancode == k.scancode && !ev.pressed:
+			key.unhighlight()
 			execute_action_released(k.action)
 	
 	if ev.scancode == KEY_E:
-		rolling_dir = -1
-		rolling_mode = ev.pressed
+		attack()
 
 func execute_action_pressed(a):
 	match(a):
@@ -105,6 +115,22 @@ func execute_action_released(a):
 		
 		'Roll Right':
 			rolling_mode = false
+		
+		'Attack':
+			attack()
+
+func attack():
+	get_node("Sword/AnimationPlayer").play("SwordSwing")
+	var b = explode_sensor.get_overlapping_bodies()
+	
+	for i in range(b.size()):
+		var body = b[i]
+		
+		if body.is_in_group("Monsters"):
+			body.attack()
+	
+	audio_player.stream = load('assets/audio/sword-better.ogg')
+	audio_player.play()
 
 func explode():
 	var b = explode_sensor.get_overlapping_bodies()
@@ -135,6 +161,9 @@ func explode():
 	
 	explode_particles.set_emitting(false)
 	explode_particles.set_emitting(true)
+	
+	audio_player.stream = load('assets/audio/explosion.wav')
+	audio_player.play()
 
 func sticking(input, dir):
 	var space_state = get_world_2d().direct_space_state
@@ -148,8 +177,8 @@ func sticking(input, dir):
 	
 	var result = space_state.intersect_ray(from, to, exclude_bodies)
 	
-	main_node.get_node("Debug").set_line(from, to)
-	main_node.get_node("Debug").update()
+	#main_node.get_node("Debug").set_line(from, to)
+	#main_node.get_node("Debug").update()
 	
 	# if we have a result AND our input points in the same direction
 	if result and input*dir.x > 0:
@@ -158,7 +187,21 @@ func sticking(input, dir):
 	
 	return false
 
-func _physics_process(_dt):
+func _physics_process(dt):
+	# move control text to right position (if visible)
+	if random_mode:
+		var offset = Vector2(0, -30)
+		random_mode_text.position = position + offset
+	
+	if invincibility_timer > 0:
+		invincibility_timer -= dt
+	
+	if key_pickup_timer > 0:
+		key_pickup_timer -= dt
+		
+		if key_pickup_timer <= 0:
+			fake_body_reenter()
+	
 	# if we're being seen, display indicator
 	alarm_indicator.set_visible(being_seen)
 	if being_seen:
@@ -167,8 +210,13 @@ func _physics_process(_dt):
 	else:
 		alarm_indicator.get_node("AnimationPlayer").stop()
 	
+	# make audio louder!
+	BGAudio.being_seen()
+	
 	# reset variable that checks if someone sees us (at END of function, important!)
 	being_seen = false
+	
+	
 
 func _integrate_forces(state):
 	# move keys with the player (smoothly)
@@ -187,11 +235,6 @@ func _integrate_forces(state):
 		
 		if k.transition > 0:
 			k.transition -= 0.016
-	
-	# move control text to right position (if visible)
-	if random_mode:
-		var offset = Vector2(0, -30)
-		random_mode_text.position = position + offset
 	
 	var climbing = false
 	if rolling_mode:
@@ -217,13 +260,44 @@ func start_random_mode():
 	random_mode = true
 	random_mode_text.show()
 	
-	_on_Timer_timeout()
+	_on_Timer_timeout(true)
 
 func end_random_mode():
 	random_mode = false
 	random_mode_text.hide()
 	
 	timer.stop()
+
+func is_invincible():
+	return (invincibility_timer > 0)
+
+func can_pickup_keys():
+	return (key_pickup_timer <= 0)
+
+func take_hit(pos):
+	if invincibility_timer > 0:
+		return
+	
+	invincibility_timer = 4.0
+	key_pickup_timer = 2.0
+	
+	# move us backwards (opposed to our attacker)
+	apply_impulse(Vector2.ZERO, -(pos - position).normalized()*50)
+	
+	# if no keys, then taking a hit doesn't mean anything
+	if keys.size() <= 0:
+		return
+	
+	# otherwise, lose a key!
+	var rand_key = keys[randi() % keys.size()]
+	keys.erase(rand_key)
+	
+	rand_key.should_teleport = rand_key.get_position()
+	
+	rand_key.enable()
+	
+	if keys.size() <= 0:
+		start_random_mode()
 
 func switch_key(k):
 	var key = null
@@ -246,23 +320,16 @@ func switch_key(k):
 		start_random_mode()
 
 func add_key(k):
-	if not k.properties.taken:
-		# basically, turn off all physics properties on the key
-		k.call_deferred('set_mode', MODE_KINEMATIC)
-		k.call_deferred('set_collision_layer', 0)
-		k.call_deferred('set_collision_mask', 0)
-		
-		k.rotation = 0
-		
-		# and remember this key is taken
-		k.remove_from_group("Keys")
-		k.properties.taken = true
+	k.disable()
 	
 	# we have a key, should always end random mode
 	end_random_mode()
 	
 	# and add it to our list
 	keys.append(k)
+	
+	# check if we need to open some door
+	fake_body_reenter()
 
 func check_word_match(word):
 	var matches = 0
@@ -274,9 +341,15 @@ func check_word_match(word):
 	
 	return (matches == word.length())
 
+func fake_body_reenter():
+	var b = pickup_area.get_overlapping_bodies()
+	for i in range(b.size()):
+		_on_Area_body_entered(b[i])
+
 func _on_Area_body_entered(body):
 	if body.is_in_group("Keys"):
-		add_key(body)
+		if can_pickup_keys():
+			add_key(body)
 	
 	if body.get_parent().is_in_group("Doors"):
 		var is_match = check_word_match(body.get_parent().word)
@@ -284,8 +357,13 @@ func _on_Area_body_entered(body):
 		if is_match:
 			body.get_parent().queue_free()
 
-func _on_Timer_timeout():
-	execute_action_released(main_node.get_random_action())
+func _on_Timer_timeout(ignore_action = false):
+	# TO DO: Allow computer to also press/hold buttons?
+	if not ignore_action:
+		execute_action_released(planned_random_action)
+	
+	planned_random_action = main_node.get_random_action()
+	random_mode_text.get_node("ActionIcon").frame = Global.action_to_icon_dict[planned_random_action]
 	
 	timer.wait_time = rand_range(random_mode_timer.min, random_mode_timer.max)
 	timer.start()

@@ -1,0 +1,15 @@
+[remap]
+
+importer="ogg_vorbis"
+type="AudioStreamOGGVorbis"
+path="res://.import/sword-better.ogg-5d563b9428a3ae8e62a88201ccc97f6a.oggstr"
+
+[deps]
+
+source_file="res://assets/audio/sword-better.ogg"
+dest_files=[ "res://.import/sword-better.ogg-5d563b9428a3ae8e62a88201ccc97f6a.oggstr" ]
+
+[params]
+
+loop=false
+loop_offset=0

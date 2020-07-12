@@ -1,7 +1,9 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://scripts/Door.gd" type="Script" id=1]
 [ext_resource path="res://assets/sprites/door.png" type="Texture" id=2]
+[ext_resource path="res://assets/sprites/light_round_soft.png" type="Texture" id=3]
+[ext_resource path="res://animations/DoorHighlight.tres" type="Animation" id=4]
 
 [sub_resource type="RectangleShape2D" id=1]
 extents = Vector2( 64, 64 )
@@ -22,3 +24,18 @@ collision_mask = 3
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
 shape = SubResource( 1 )
+
+[node name="Sprite" type="Sprite" parent="."]
+modulate = Color( 0.780392, 0.305882, 0.305882, 0.588235 )
+show_behind_parent = true
+scale = Vector2( 2, 2 )
+texture = ExtResource( 3 )
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Sprite"]
+autoplay = "DoorHighlight"
+anims/DoorHighlight = ExtResource( 4 )
+
+[node name="Light2D" type="Light2D" parent="."]
+texture = ExtResource( 3 )
+texture_scale = 2.0
+color = Color( 0.952941, 0.423529, 0.105882, 1 )

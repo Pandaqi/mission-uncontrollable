@@ -29,6 +29,9 @@ func _physics_process(dt):
 	if b1.size() <= 0 or (b2.size() > 0):
 		change_direction()
 
+func attack():
+	pass
+
 func explode(vec):
 	explode_timer = 3.0
 	apply_impulse(Vector2.ZERO, vec.normalized() * explode_speed)

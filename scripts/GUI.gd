@@ -6,6 +6,10 @@ onready var game_over_message_node = get_node("GameOver/ColorRect/VBoxContainer/
 onready var game_over_result_node = get_node("GameOver/ColorRect/VBoxContainer/Result")
 onready var alarm_bar = get_node("Control/HBoxContainer/AlarmBar/CenterContainer/TextureProgress")
 
+onready var bar_highlight = get_node("Control/HBoxContainer/AlarmBar/CenterContainer/Highlight")
+
+onready var main_node = get_node("/root/Main")
+
 const messages = {
 	"WIN": 
 		[
@@ -26,6 +30,9 @@ func _input(ev):
 		return
 	
 	if not game_over_state:
+		if ev.scancode == KEY_ESCAPE and not ev.pressed:
+			main_node.game_over(false)
+		
 		return
 	
 	if ev.scancode == KEY_R:
@@ -40,6 +47,13 @@ func final_game_pause():
 
 func update_alarm_bar(a):
 	alarm_bar.value = a
+	
+	if a >= 80:
+		bar_highlight.set_visible(true)
+		bar_highlight.get_node("AnimationPlayer").play("AlarmBarHighlight")
+	else:
+		bar_highlight.set_visible(false)
+		bar_highlight.get_node("AnimationPlayer").stop()
 
 func game_over(we_won):
 	if game_over_state:

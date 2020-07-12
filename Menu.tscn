@@ -1,13 +1,47 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=10 format=2]
 
 [ext_resource path="res://assets/fonts/MainFont.tres" type="DynamicFont" id=1]
 [ext_resource path="res://assets/sprites/menu_text.png" type="Texture" id=2]
 [ext_resource path="res://assets/fonts/MainFont-Big.tres" type="DynamicFont" id=3]
 [ext_resource path="res://scripts/Menu.gd" type="Script" id=4]
 [ext_resource path="res://animations/MenuAppear.tres" type="Animation" id=5]
+[ext_resource path="res://assets/sprites/light_round_soft.png" type="Texture" id=6]
+
+[sub_resource type="Curve" id=1]
+_data = [ Vector2( 0.00913242, 0.00227273 ), 0.0, 1.11685, 0, 0, Vector2( 0.543379, 0.893182 ), 0.0, 0.0, 0, 0, Vector2( 1, 0 ), 0.0, 0.0, 0, 0 ]
+
+[sub_resource type="CurveTexture" id=2]
+curve = SubResource( 1 )
+
+[sub_resource type="ParticlesMaterial" id=3]
+emission_shape = 2
+emission_box_extents = Vector3( 600, 1, 1 )
+flag_disable_z = true
+direction = Vector3( 0, 1, 0 )
+spread = 10.0
+gravity = Vector3( 0, -11, 0 )
+initial_velocity = -50.0
+orbit_velocity = 0.0
+orbit_velocity_random = 0.0
+tangential_accel = 5.0
+tangential_accel_random = 0.5
+scale = 0.05
+scale_random = 0.5
+scale_curve = SubResource( 2 )
+hue_variation = 1.0
+hue_variation_random = 1.0
 
 [node name="Menu" type="Node2D"]
 script = ExtResource( 4 )
+
+[node name="Particles2D" type="Particles2D" parent="."]
+modulate = Color( 1, 1, 1, 0.196078 )
+position = Vector2( 498.244, 596.087 )
+amount = 100
+lifetime = 8.0
+randomness = 1.0
+process_material = SubResource( 3 )
+texture = ExtResource( 6 )
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -95,7 +129,7 @@ margin_right = 158.0
 margin_bottom = 31.0
 size_flags_horizontal = 3
 custom_fonts/font = ExtResource( 1 )
-text = "Level Size?"
+text = "Difficulty?"
 
 [node name="SizeSlider" type="HSlider" parent="CanvasLayer/Control/CenterContainer/VBoxContainer2/CenterContainer/VBoxContainer/Setting_Size"]
 margin_left = 162.0
@@ -104,7 +138,8 @@ margin_right = 320.0
 margin_bottom = 23.0
 size_flags_horizontal = 3
 size_flags_vertical = 4
-step = 10.0
+max_value = 10.0
+rounded = true
 
 [node name="Setting_Volume" type="HBoxContainer" parent="CanvasLayer/Control/CenterContainer/VBoxContainer2/CenterContainer/VBoxContainer"]
 modulate = Color( 1, 1, 1, 0 )

@@ -16,12 +16,13 @@ _global_script_class_icons={
 [application]
 
 config/name="GMTKJam2020"
-run/main_scene="res://Main.tscn"
+run/main_scene="res://Menu.tscn"
 config/icon="res://icon.png"
 
 [autoload]
 
 BGAudio="*res://scripts/BGAudio.gd"
+Global="*res://scripts/Global.gd"
 
 [input]
 

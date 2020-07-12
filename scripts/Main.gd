@@ -11,12 +11,13 @@ onready var GUI = get_node("GUI")
 
 const cam_interpolation = 0.5
 
-const dungeon_width = 3
-const dungeon_height = 5
+var difficulty = 0
+var dungeon_width = 2
+var dungeon_height = 3
 
 const number_of_columns = 1
 
-const number_of_rooms = 4
+const number_of_rooms = 6
 
 const cell_size = 128
 const room_size = Vector2(6, 6)
@@ -58,26 +59,50 @@ var word_dict = [
 	"JUMP",
 	"RUN",
 	"MOVE",
+	"SHOT",
+	"WIN", 
+	"LOSE",
+	"SWITCH",
+	"MOUSE", 
+	"SPIDER",
+	"BAT",
+	"PORTAL",
+	"FUN",
+	"JOY",
+	"LOST",
+	"CAVE",
+	"TEAM"
 ]
 
 var words = []
 var available_keys = []
 
-# const available_keys = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+var next_action_number = 0
 const actions = [
-	#'Jump Left',
-	#'Jump Right',
+	'Jump Left',
+	'Jump Right',
 	'Jump Up',
 	'Smash Down',
 	'Explode',
+	'Attack',
 	'Roll Left',
 	'Roll Right',
-	#'Attack',
+	#'Dash Left',
+	#'Dash Right',
+	#'Negative Gravity',
+	#'Invisibility',
+	#'Noisy',
+	#'Hack',
+	#'Magnet',
+	#'Sticky',
+	#'Bigger'
 	#'Move'
 ]
 
 func _ready():
 	randomize()
+	
+	read_difficulty()
 	
 	determine_areas()
 	pick_words()
@@ -94,14 +119,21 @@ func _ready():
 	cam.limit_top = -cell_size
 	cam.limit_bottom = (dungeon_height)*room_size.y*cell_size
 
+func read_difficulty():
+	difficulty = Global.difficulty
+	
+	dungeon_width = int(2 + round(0.25*difficulty))
+	dungeon_height = int(3 + difficulty)
+
 func determine_areas():
 	# determine a set of distinct "areas"
-	areas = [[0,1]]
-	for y in range(2, dungeon_height):
+	areas = [[0,1], [2]]
+	for y in range(3, dungeon_height):
 		# create new area!
 		if randf() <= 0.5:
 			areas.append([y])
 		
+		else:
 		# latch onto previous area!
 			areas[areas.size()-1].append(y)
 
@@ -127,7 +159,8 @@ func create_key(scancode = null, action = null):
 	var key = key_scene.instance()
 
 	if not action:
-		action = actions[randi() % actions.size()]
+		action = actions[next_action_number]
+		next_action_number = (next_action_number + 1) % actions.size()
 	
 	if not scancode:
 		var rand_string = available_keys[randi() % available_keys.size()]
@@ -168,6 +201,8 @@ func place_keys():
 				
 				key.set_position(players[num].get_position())
 				call_deferred("add_child", key)
+				
+				next_action_number = 2
 		
 		for letter in keys_to_place:
 			# create the key
@@ -204,6 +239,7 @@ func place_keys():
 				for child in room.get_children():
 					if child.is_in_group("Doors"):
 						if row == (area.size() - 1):
+							print("Setting word", picked_word)
 							child.set_word(picked_word)
 						else:
 							child.queue_free()
@@ -224,6 +260,7 @@ func create_players():
 		players.append(p)
 		
 		p.player_num = i
+		p.get_node("Sprite").frame = i
 
 func create_dungeon():
 	rooms.resize(number_of_columns)
@@ -308,13 +345,14 @@ func place_fitting_room(num, x, y):
 			room.queue_free()
 	
 	# hacky way to ensure a tutorial room + correct texts at the top of the dungeon
-	if y == 0 and x <= 1:
-		room = tutorial_room.instance()
-		
-		if x == 1:
-			room.get_node("TutorialImage3").show()
-			room.get_node("TutorialImage1").hide()
-			room.get_node("TutorialImage2").hide()
+	if Global.tutorial_room:
+		if y == 0 and x <= 1:
+			room = tutorial_room.instance()
+			
+			if x == 1:
+				room.get_node("TutorialImage3").show()
+				room.get_node("TutorialImage1").hide()
+				room.get_node("TutorialImage2").hide()
 	
 	var offset_x = num*(dungeon_width + 2.0/room_size.x)
 	var room_pos = Vector2((x + offset_x)*cell_size*room_size.x, y*cell_size*room_size.y)
@@ -347,20 +385,40 @@ func raise_alarm(da):
 		game_over(false)
 
 func _physics_process(dt):
+	# check if both players have no keys left ( => game over)
+	var keys_left = 0
+	var being_seen = 0
+	for i in range(num_players):
+		var p = players[i]
+		keys_left += p.keys.size()
+		
+		if p.being_seen:
+			being_seen += 1
+		
+		if players[i].is_invincible():
+			keys_left += 1
+	
+	if keys_left <= 0:
+		game_over(false)
+	
+	if being_seen <= 0:
+		BGAudio.end_being_seen()
+	
 	# gradually reduce alarm
 	if alarm > 0.0:
 		raise_alarm(-alarm_reduction_rate*dt)
 	
 	# position and zoom camera properly
 	var avg_pos = Vector2.ZERO
-	for i in range(2):
-		avg_pos += 0.5*players[i].position
+	for i in range(num_players):
+		avg_pos += (1.0/num_players)*players[i].position
 	
 	var screen_size = get_viewport().size
 	var required_size = Vector2(abs(players[0].position.x - players[1].position.x), abs(players[0].position.y - players[1].position.y))
 	var zoom_margin = Vector2(300, 300)
 	
 	required_size += zoom_margin
+	required_size += Vector2(0, 300) # to see slightly below ourselves
 	
 	var required_zoom = max(required_size.x / screen_size.x, required_size.y / screen_size.y)
 	var minimum_zoom = 1.0
