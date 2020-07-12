@@ -1,18 +1,13 @@
-extends Node
+extends AudioStreamPlayer
 
-var music_player
 var main_volume = 0.0
 
+func set_main_volume(v):
+	main_volume = v
+	volume_db = v
+
 func being_seen():
-	music_player.volume_db = main_volume + 5.0
+	volume_db = main_volume + 6.0
 
 func end_being_seen():
-	music_player.volume_db = main_volume
-
-func _ready():
-	var music_file = "res://music.wav"
-	music_player = AudioStreamPlayer.new()
-
-	if File.new().file_exists(music_file):
-		music_player.stream = load(music_file)
-		music_player.play()
+	volume_db = main_volume

@@ -1,6 +1,7 @@
 extends Node2D
 
 func _ready():
+	BGAudio.play()
 	get_node("CanvasLayer/Control/CenterContainer/VBoxContainer2/CenterContainer/VBoxContainer/Setting_Fullscreen/Fullscreen_Checkbox").pressed = OS.window_fullscreen
 
 func _process(_dt):
@@ -19,8 +20,7 @@ func _on_SizeSlider_value_changed(value):
 	Global.difficulty = value
 
 func _on_VolumeSlider_value_changed(value):
-	BGAudio.main_volume = value
-	BGAudio.music_player.volume_db = value
+	BGAudio.set_main_volume(value)
 
 func _on_Fullscreen_Checkbox_toggled(button_pressed):
 	OS.window_fullscreen = button_pressed

@@ -21,8 +21,8 @@ config/icon="res://icon.png"
 
 [autoload]
 
-BGAudio="*res://scripts/BGAudio.gd"
 Global="*res://scripts/Global.gd"
+BGAudio="*res://BGAudio.tscn"
 
 [input]
 

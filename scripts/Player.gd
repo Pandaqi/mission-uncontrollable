@@ -76,8 +76,9 @@ func _input(ev):
 			key.unhighlight()
 			execute_action_released(k.action)
 	
-	if ev.scancode == KEY_E:
-		attack()
+#	if ev.scancode == KEY_E:
+#		main_node.game_over(true)
+#		attack()
 
 func execute_action_pressed(a):
 	match(a):
@@ -315,6 +316,9 @@ func switch_key(k):
 	key.transition = 0.5
 	
 	main_node.players[other_player].add_key(key)
+	
+	audio_player.stream = load("res://assets/audio/control_switch.ogg")
+	audio_player.play()
 	
 	if keys.size() <= 0:
 		start_random_mode()

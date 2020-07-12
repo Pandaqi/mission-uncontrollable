@@ -64,11 +64,18 @@ func game_over(we_won):
 	
 	var msg
 	var res = "You won!"
+	var sound = "win_sound.ogg"
 	if we_won:
 		msg = messages.WIN[randi() % messages.WIN.size()]
 	else:
 		res = "You lost!"
 		msg = messages.LOSE[randi() % messages.LOSE.size()]
+		sound = "lose_sound.ogg"
+	
+	BGAudio.stop()
+	
+	get_node("AudioStreamPlayer").stream = load("res://assets/audio/" + sound)
+	get_node("AudioStreamPlayer").play()
 	
 	game_over_message_node.set_text(msg)
 	game_over_result_node.set_text(res)

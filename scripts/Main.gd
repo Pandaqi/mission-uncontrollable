@@ -82,11 +82,11 @@ const actions = [
 	'Jump Left',
 	'Jump Right',
 	'Jump Up',
-	'Smash Down',
-	'Explode',
 	'Attack',
 	'Roll Left',
 	'Roll Right',
+	'Smash Down',
+	'Explode',
 	#'Dash Left',
 	#'Dash Right',
 	#'Negative Gravity',
@@ -118,6 +118,8 @@ func _ready():
 	cam.limit_right = ((dungeon_width+1)*number_of_columns)*room_size.x*cell_size
 	cam.limit_top = -cell_size
 	cam.limit_bottom = (dungeon_height)*room_size.y*cell_size
+	
+	BGAudio.play()
 
 func read_difficulty():
 	difficulty = Global.difficulty
