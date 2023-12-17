@@ -60,9 +60,7 @@ func _integrate_forces(state):
 	if should_impulse:
 		var angle = rand_range(PI, 2*PI)
 		var place_vec = Vector2(cos(angle), sin(angle))
-		apply_impulse(Vector2.ZERO, place_vec*200)
-		
-		print("APPLYING IMPULSE")
+		apply_impulse(Vector2.ZERO, place_vec*350)
 		
 		should_impulse = false
 	

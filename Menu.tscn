@@ -163,7 +163,6 @@ size_flags_horizontal = 3
 size_flags_vertical = 4
 min_value = -24.0
 max_value = 0.0
-step = 1.0
 
 [node name="Button_Play" type="Button" parent="CanvasLayer/Control/CenterContainer/VBoxContainer2/CenterContainer/VBoxContainer"]
 modulate = Color( 1, 1, 1, 0 )

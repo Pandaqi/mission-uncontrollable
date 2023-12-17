@@ -275,7 +275,7 @@ func is_invincible():
 func can_pickup_keys():
 	return (key_pickup_timer <= 0)
 
-func take_hit(pos):
+func take_hit(pos, enemy):
 	if invincibility_timer > 0:
 		return
 	
@@ -293,7 +293,10 @@ func take_hit(pos):
 	var rand_key = keys[randi() % keys.size()]
 	keys.erase(rand_key)
 	
-	rand_key.should_teleport = rand_key.get_position()
+	#rand_key.should_teleport = rand_key.get_position()
+	
+	# NO, teleport to bat position
+	rand_key.should_teleport = enemy.global_position
 	
 	rand_key.enable()
 	
@@ -363,7 +366,9 @@ func _on_Area_body_entered(body):
 
 func _on_Timer_timeout(ignore_action = false):
 	# TO DO: Allow computer to also press/hold buttons?
-	if not ignore_action:
+	if ignore_action:
+		execute_action_released(main_node.get_random_action())
+	else:
 		execute_action_released(planned_random_action)
 	
 	planned_random_action = main_node.get_random_action()

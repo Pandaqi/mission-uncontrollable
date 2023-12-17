@@ -27,7 +27,7 @@ func _physics_process(_dt):
 		var vec = (pp.position - global_position)
 		
 		if vec.length() <= hit_radius:
-			pp.take_hit(vec.normalized())
+			pp.take_hit(vec.normalized(), self)
 
 func jump():
 	# find closest player

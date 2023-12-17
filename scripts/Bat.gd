@@ -2,7 +2,7 @@ extends RigidBody2D
 
 var p
 
-const sight_radius = 300.0
+const sight_radius = 330.0
 const hit_radius = 64
 
 const move_speed = 100.0
@@ -18,14 +18,20 @@ func _physics_process(_dt):
 	
 	for i in range(p.size()):
 		var pp = p[i]
+		
 		var vec = (pp.position - global_position)
 		var dist = vec.length()
+		var norm_vec = vec.normalized()
 		
 		if dist <= hit_radius:
-			pp.take_hit(vec.normalized())
+			if pp.is_invincible():
+				move_vec = -norm_vec
+				continue
+			
+			pp.take_hit(norm_vec, self)
 		
 		if dist <= prev_closest_dist:
-			move_vec = vec.normalized()
+			move_vec = norm_vec
 			prev_closest_dist = dist
 
 func attack():

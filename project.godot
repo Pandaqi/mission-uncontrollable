@@ -15,9 +15,9 @@ _global_script_class_icons={
 
 [application]
 
-config/name="GMTKJam2020"
+config/name="Mission Uncontrollable"
 run/main_scene="res://Menu.tscn"
-config/icon="res://icon.png"
+config/icon="res://assets/sprites/bat.png"
 
 [autoload]
 

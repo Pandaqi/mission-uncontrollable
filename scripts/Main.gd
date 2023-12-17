@@ -241,7 +241,6 @@ func place_keys():
 				for child in room.get_children():
 					if child.is_in_group("Doors"):
 						if row == (area.size() - 1):
-							print("Setting word", picked_word)
 							child.set_word(picked_word)
 						else:
 							child.queue_free()
